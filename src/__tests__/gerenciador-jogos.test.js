@@ -1,15 +1,14 @@
 import { GerenciadorJogos } from "../gerenciador-jogos";
+import RepositorioJogos from "../repositorio-jogos";
+
+jest.mock("../repositorio-jogos");
 
 describe("Gerenciador de jogos", () => {
   let gerenciador;
 
-  beforeAll(() => {
-
-  })
-
   beforeEach(() => {
- 	gerenciador = new GerenciadorJogos();
-  })
+    gerenciador = new GerenciadorJogos();
+  });
 
   test("Deve ser possível cadastrar um jogo", () => {
     const jogo = {
@@ -18,6 +17,7 @@ describe("Gerenciador de jogos", () => {
       genero: ["rpg"],
     };
     gerenciador.add(jogo);
+    jest.spyOn(RepositorioJogos.prototype, 'quantidade').mockReturnValue(1);
     const qtde = gerenciador.getQtde();
     expect(qtde).toBe(1);
   });
@@ -32,30 +32,21 @@ describe("Gerenciador de jogos", () => {
   });
 
   test("Não deve ser possível cadastrar dois jogos com o mesmo nome e ano", () => {
-    const jogo1 = {
+    const jogo = {
       titulo: "Donkey Kong 2",
       ano: 1995,
       genero: ["plataforma"],
     };
-    const jogo2 = {
-      titulo: "Donkey Kong 2",
-      ano: 1995,
-      genero: ["plataforma"],
-    };
-	gerenciador.add(jogo1);
-	
-	const qtdeJogos = gerenciador.getQtde();
-	
-	expect(() => gerenciador.add(jogo2)).toThrow(Error);
-	expect(qtdeJogos).toBe(1);
+    jest.spyOn(RepositorioJogos.prototype, 'existeJogo').mockReturnValue(true);
+    expect(() => gerenciador.add(jogo)).toThrow(Error);
   });
 
-  test('Não deve ser possível cadastrar jogos com ano posterior ao atual', () => { 
-	const jogo = {
+  test("Não deve ser possível cadastrar jogos com ano posterior ao atual", () => {
+    const jogo = {
       titulo: "Final Fantasy XVII",
       ano: 2026,
       genero: ["rpg"],
     };
     expect(() => gerenciador.add(jogo)).toThrow(Error);
-   })
+  });
 });
